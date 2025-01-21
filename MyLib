@@ -43,6 +43,173 @@ namespace String {
 	}
 }
 
+namespace Random {
+	int GenerateRandomNumber(int From, int To) {
+
+		int randNum = rand() % (To - From + 1) + From;
+
+		return randNum;
+
+	}
+	char GetRandomCharacter(enSymbol symbol) {
+		switch (symbol)
+		{
+		case CapitalLetter:
+			return char(GenerateRandomNumber(65, 90));
+
+		case SmallLetter:
+			return char(GenerateRandomNumber(97, 122));
+
+		case SpecialChar:
+			return char(GenerateRandomNumber(33, 47));
+
+		case Digit:
+			return char(GenerateRandomNumber(48, 57));
+
+		default:
+			break;
+		}
+	}
+	string GenerateWord(short len, enSymbol symbol) {
+		string word = "";
+
+		for (int i = 0; i < len; i++)
+			word += GetRandomCharacter(symbol);
+		return word;
+	}
+	string GenerateKey() {
+		string key = "";
+		key = key + GenerateWord(4, CapitalLetter) + '-';
+		key = key + GenerateWord(4, CapitalLetter) + '-';
+		key = key + GenerateWord(4, CapitalLetter) + '-';
+		key = key + GenerateWord(4, CapitalLetter);
+		return key;
+
+	}
+	void GenerateKeys(int numberOfKeys) {
+
+		for (int i = 0; i < numberOfKeys; i++) {
+			cout << "key [" << i + 1 << "] : " << GenerateKey() << endl;
+		}
+	}
+
+}
+
+namespace Read{
+	int ReadNumber(string message) {
+	int num;
+	cout << message;
+	cin >> num;
+	while (cin.fail()) {
+		cin.clear();
+		cout << "Invalid number.\n";
+		cin.ignore(INT_MAX, '\n');
+		cin >> num;
+	}
+	return num;
+}
+	int ReadValidNumber(string message) {
+		int num;
+		cout << message;
+		cin >> num;
+		while (cin.fail()) {
+			cin.clear();
+			cout << "Invalid number.\n";
+			cin.ignore(INT_MAX, '\n');
+			cin >> num;
+		}
+		return num;
+	}
+	int ReadPositiveNumber(string message) {
+		int num;
+		while (true) {
+			cout << message;
+			cin >> num;
+			if (num > 0)
+				return num;
+
+		}
+	}
+
+}
+
+
+namespace Math {
+	double MyAbs(double num) {
+
+		if (num >= 0)
+			return num;
+
+		else
+			return num * -1;
+
+
+	}
+	float GetFractionalpart(float num) {
+		return  num - (int)num;
+	}
+	int MyRound(float num) {
+
+		int intPart = num;
+		float fractionalPart = GetFractionalpart(num);
+
+		if (MyAbs(fractionalPart) >= 0.5) {
+			if (num > 0)
+				return ++intPart;
+			else
+				return --intPart;
+		}
+		else
+		{
+			return intPart;
+		}
+	}
+	int MyFloor(float num) {
+		if (num > 0)
+			return (int)num;
+		else
+			return (int)num - 1;
+	}
+	int MyCeil(float num) {
+
+		float fractionalPart = GetFractionalpart(num);
+
+		if (fractionalPart != 0)
+		{
+			if (num > 0) {
+				return int(num) + 1;
+			}
+			else {
+				return int(num);
+			}
+		}
+		else
+			return num;
+	}
+	float MySqrt(float num) {
+
+		return pow(num, 0.5);
+	}
+	enPrimeNotPrime CheckPrimeNumber(int num) {
+		for (int i = 2; i <= (num / 2); i++)
+			if (num % i == 0)
+				return NotPrime;
+		return Prime;
+	}
+}
+
+namespace Utility {
+	void Swap(int& A, int& B) {
+
+
+		int temp = A;
+		A = B;
+		B = temp;
+
+	}
+
+}
+
 namespace Array {
 	void ReadArray(int arr[], int& size) {
 
@@ -255,170 +422,4 @@ namespace Array {
 		for (int i = 0; i < size; i++)
 			arr[i] = i + 1;
 	}
-}
-
-namespace Math {
-	double MyAbs(double num) {
-
-		if (num >= 0)
-			return num;
-
-		else
-			return num * -1;
-
-
-	}
-	float GetFractionalpart(float num) {
-		return  num - (int)num;
-	}
-	int MyRound(float num) {
-
-		int intPart = num;
-		float fractionalPart = GetFractionalpart(num);
-
-		if (MyAbs(fractionalPart) >= 0.5) {
-			if (num > 0)
-				return ++intPart;
-			else
-				return --intPart;
-		}
-		else
-		{
-			return intPart;
-		}
-	}
-	int MyFloor(float num) {
-		if (num > 0)
-			return (int)num;
-		else
-			return (int)num - 1;
-	}
-	int MyCeil(float num) {
-
-		float fractionalPart = GetFractionalpart(num);
-
-		if (fractionalPart != 0)
-		{
-			if (num > 0) {
-				return int(num) + 1;
-			}
-			else {
-				return int(num);
-			}
-		}
-		else
-			return num;
-	}
-	float MySqrt(float num) {
-
-		return pow(num, 0.5);
-	}
-	enPrimeNotPrime CheckPrimeNumber(int num) {
-		for (int i = 2; i <= (num / 2); i++)
-			if (num % i == 0)
-				return NotPrime;
-		return Prime;
-	}
-}
-
-namespace Read{
-	int ReadNumber(string message) {
-	int num;
-	cout << message;
-	cin >> num;
-	while (cin.fail()) {
-		cin.clear();
-		cout << "Invalid number.\n";
-		cin.ignore(INT_MAX, '\n');
-		cin >> num;
-	}
-	return num;
-}
-	int ReadValidNumber(string message) {
-		int num;
-		cout << message;
-		cin >> num;
-		while (cin.fail()) {
-			cin.clear();
-			cout << "Invalid number.\n";
-			cin.ignore(INT_MAX, '\n');
-			cin >> num;
-		}
-		return num;
-	}
-	int ReadPositiveNumber(string message) {
-		int num;
-		while (true) {
-			cout << message;
-			cin >> num;
-			if (num > 0)
-				return num;
-
-		}
-	}
-
-}
-
-namespace Random {
-	int GenerateRandomNumber(int From, int To) {
-
-		int randNum = rand() % (To - From + 1) + From;
-
-		return randNum;
-
-	}
-	char GetRandomCharacter(enSymbol symbol) {
-		switch (symbol)
-		{
-		case CapitalLetter:
-			return char(GenerateRandomNumber(65, 90));
-
-		case SmallLetter:
-			return char(GenerateRandomNumber(97, 122));
-
-		case SpecialChar:
-			return char(GenerateRandomNumber(33, 47));
-
-		case Digit:
-			return char(GenerateRandomNumber(48, 57));
-
-		default:
-			break;
-		}
-	}
-	string GenerateWord(short len, enSymbol symbol) {
-		string word = "";
-
-		for (int i = 0; i < len; i++)
-			word += GetRandomCharacter(symbol);
-		return word;
-	}
-	string GenerateKey() {
-		string key = "";
-		key = key + GenerateWord(4, CapitalLetter) + '-';
-		key = key + GenerateWord(4, CapitalLetter) + '-';
-		key = key + GenerateWord(4, CapitalLetter) + '-';
-		key = key + GenerateWord(4, CapitalLetter);
-		return key;
-
-	}
-	void GenerateKeys(int numberOfKeys) {
-
-		for (int i = 0; i < numberOfKeys; i++) {
-			cout << "key [" << i + 1 << "] : " << GenerateKey() << endl;
-		}
-	}
-
-}
-
-namespace Utility {
-	void Swap(int& A, int& B) {
-
-
-		int temp = A;
-		A = B;
-		B = temp;
-
-	}
-
 }
