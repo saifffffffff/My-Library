@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <iomanip>
 using namespace std;
 #include <string>
 #include <cmath>
@@ -130,6 +131,40 @@ namespace Read{
 
 		}
 	}
+	int ReadPositivevValidNumber(string message, string alertMessage = "") {
+		int num = 0;
+		cout << message;
+		cin >> num;
+		while (cin.fail() || num < 0) {
+			cin.clear();
+			cin.ignore(INT_MAX, '\n');
+			cout << alertMessage;
+			cin >> num;
+		}
+		return num;
+	}
+	int ReadNumberInRange(int from, int to, string message) {
+		int num;
+		do {
+			cout << message;
+			cin >> num;
+		} while (num < from || num > to );
+		return num;
+	}
+	int ReadValidNumberInRange(int from, int to, string message) {
+		int num;
+		cout << message;
+		cin >> num;
+		while (num < from || num > to || cin.fail()) {
+			cin.clear();
+			cout << message;
+			cin.ignore(INT_MAX, '\n');
+			cin >> num;
+		}
+		return num;
+		
+	}
+
 
 }
 
@@ -301,14 +336,6 @@ namespace Array {
 
 
 	}
-	int ReadNumberInRange(int from, int to, string message) {
-		int num;
-		do {
-			cout << message;
-			cin >> num;
-		} while (num < from || num > to);
-		return num;
-	}
 	void AddNumberToArray(int arr[], int& size, int number) {
 		arr[size++] = number;
 	}
@@ -421,5 +448,98 @@ namespace Array {
 
 		for (int i = 0; i < size; i++)
 			arr[i] = i + 1;
+	}
+	short MaxLenStringInArray(string arr[], int size) {
+		short MaxLen = String::Len(arr[0]);
+		for (int i = 1; i < size; i++) {
+			if (String::Len(arr[i]) > MaxLen)
+				MaxLen = String::Len(arr[i]);
+		}
+		return MaxLen;
+	}
+
+}
+
+namespace Table {
+
+	struct stTable {
+		short cols, rows;
+		string HeadLines[10];
+		string Elements[10][10];
+	};
+	
+	string GetBorder(short num) {
+		string border = "|";
+		for (int i = 0; i < num; i++)
+			border += "-";
+		border += "|";
+		return border;
+	}
+
+	void ReadTable(stTable& table) {
+
+		table.cols = Read::ReadValidNumberInRange(1, 10, "How many Cols (1 - 10) ? ");
+		table.rows = Read::ReadValidNumberInRange(1, 10, "How many Rows (HeadLines are not included) (1 - 10) ? ");
+
+		cin.ignore(INT_MAX, '\n');
+
+		for (int i = 0; i < table.cols; i++) {
+			cout << "Head Line " << i + 1 << " : ";
+			getline(cin, table.HeadLines[i]);
+		}
+
+	}
+	void ReadTableElements(stTable& table) {
+		for (int row = 0; row < table.rows; row++) {
+			cout << "Row " << row + 1 << endl;
+			for (int col = 0; col < table.cols; col++) {
+				cout << table.HeadLines[col] << " : ";
+				getline(cin, table.Elements[row][col]);
+			}
+		}
+	}
+
+	void PrintTableBorder(stTable table) {
+		for (int i = 0; i < table.cols; i++)
+			cout << GetBorder(String::Len(table.HeadLines[i]) + 8);
+		cout << endl;
+	}
+	void PrintHeader(stTable table) {
+
+
+		PrintTableBorder(table);
+
+		for (int i = 0; i < table.cols; i++)
+			cout << "|    " << table.HeadLines[i] << "    |";
+		cout << endl;
+		PrintTableBorder(table);
+
+
+	}
+	void PrintTableRow(stTable table, short row) {
+		for (int col = 0; col < table.cols; col++) {
+			cout << "|";
+			cout << setw(String::Len(table.HeadLines[col]) + 8) << table.Elements[row][col];
+			cout << "|";
+		}
+
+		cout << endl;
+
+	}
+	void PrintTable(stTable& table) {
+		PrintHeader(table);
+		for (int row = 0; row < table.rows; row++)
+		{
+			PrintTableRow(table, row);
+			PrintTableBorder(table);
+		}
+	}
+
+	void CreatTable() {
+		stTable table;
+
+		ReadTable(table);
+		ReadTableElements(table);
+		PrintTable(table);
 	}
 }
