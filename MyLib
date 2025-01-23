@@ -164,8 +164,30 @@ namespace Read{
 		return num;
 		
 	}
+	string ReadString(string message) {
+		string str = "";
 
+		while (str.empty()) {
+			cout << message;
+			getline(cin, str);
+		}
 
+		return str;
+	}
+	char ReadChar(string message) {
+		char c;
+		string input;
+		cin.ignore(INT_MAX, '\n');
+		while (true) {
+			cout << message;
+			getline(cin, input);
+			if (String::Len(input) == 1) {
+				c = input[0];
+				break;
+			}
+		}
+		return c;
+	}
 }
 
 
@@ -519,10 +541,13 @@ namespace Table {
 	void PrintTableRow(stTable table, short row) {
 		for (int col = 0; col < table.cols; col++) {
 			cout << "|";
-			cout << setw(String::Len(table.HeadLines[col]) + 8) << table.Elements[row][col];
+			
+			short totalHeadLineAligment = 8 + String::Len(table.HeadLines[col]);
+			short alignment = (totalHeadLineAligment - String::Len(table.Elements[row][col])) / 2 + String::Len(table.Elements[row][col]);
+			cout << setw(alignment) << table.Elements[row][col] << setw((totalHeadLineAligment - alignment) + 1);
+			
 			cout << "|";
 		}
-
 		cout << endl;
 
 	}
