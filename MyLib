@@ -2,15 +2,19 @@
 
 #include <iostream>
 #include <iomanip>
-using namespace std;
+#include <fstream>
+#include <vector>
 #include <string>
 #include <cmath>
 #include <cstdlib>
+
+using namespace std;
 
 
 enum enPrimeNotPrime { Prime = 1, NotPrime = 2 };
 enum enSymbol { CapitalLetter, SmallLetter, SpecialChar, Digit };
  
+
 namespace String {
 
 	short Len(string word) {
@@ -40,6 +44,26 @@ namespace String {
 			return CleanWord(SubString(word, 1));
 
 		return (word[0] + CleanWord(SubString(word, 1)));
+
+	}
+	void RemoveWordFromString(string & text , string word) {
+		
+		if (text.find(word) == string::npos ) return;
+
+		text.erase(text.find(word) , word.size() + 1);
+		
+		RemoveWordFromString(text, word);
+	}
+	void SwapWordInString(string &  text, string OldWord, string NewWord) {
+		
+		if (text.find(OldWord) == string::npos ) return ;
+
+		short oldWordPos = text.find(OldWord);
+		text.erase(oldWordPos, OldWord.size());
+		text.insert(oldWordPos, NewWord);
+
+		
+		SwapWordInString(text, OldWord, NewWord);
 
 	}
 }
@@ -131,7 +155,7 @@ namespace Read{
 
 		}
 	}
-	int ReadPositivevValidNumber(string message, string alertMessage = "") {
+	int ReadPositiveValidNumber(string message, string alertMessage = "") {
 		int num = 0;
 		cout << message;
 		cin >> num;
@@ -166,7 +190,7 @@ namespace Read{
 	}
 	string ReadString(string message) {
 		string str = "";
-
+		cin.ignore(INT_MAX, '\n');
 		while (str.empty()) {
 			cout << message;
 			getline(cin, str);
@@ -567,4 +591,83 @@ namespace Table {
 		ReadTableElements(table);
 		PrintTable(table);
 	}
+}
+
+namespace File {
+	bool ReadLine(istream& input, string& line, char delimitar = '\n') {
+
+		line.clear();
+
+		char c;
+
+		while (input.get(c)) {
+
+			if (c == delimitar) break;
+			line += c;
+		}
+
+		return !line.empty() || !input.eof();
+
+
+	}
+
+	void PrintFileContent(string PathToFile) {
+
+		fstream file(PathToFile, ios::in);
+
+		if (file.is_open()) {
+			string line;
+			while (getline(file, line))
+				cout << line << '\n';
+		}
+
+
+
+	}
+
+	void LoadDataFromFileToVector(string PathToFile, vector <string>& vFileContent) {
+		fstream file(PathToFile, ios::in);
+		if (file.is_open()) {
+			string line;
+			while (getline(file, line))
+				vFileContent.push_back(line);
+		}
+	}
+
+	void SaveVectorToFile(string PathToFile, vector <string>& vFileContent) {
+		fstream file;
+		file.open(PathToFile, ios::out);
+
+		if (file.is_open()) {
+			for (string& line : vFileContent)
+				if (line != "")
+					file << line << endl;
+		}
+	}
+
+	void DeletRecordFromFile(string PathToFile, string DeletedRecord) {
+		vector <string> FileContent;
+
+		LoadDataFromFileToVector(PathToFile, FileContent);
+
+		for (string& line : FileContent) {
+			String::RemoveWordFromString(line, DeletedRecord);
+		}
+
+		SaveVectorToFile(PathToFile, FileContent);
+
+	}
+
+	void UpdateRecordInFile(string PathToFile, string record, string newRecord) {
+		vector<string> FileContent;
+		LoadDataFromFileToVector(PathToFile, FileContent);
+
+		for (string& line : FileContent) {
+			String::SwapWordInString(line, record, newRecord);
+		}
+
+		SaveVectorToFile(PathToFile, FileContent);
+
+	}
+
 }
