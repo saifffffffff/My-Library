@@ -23,14 +23,19 @@ namespace String {
 	bool IsLower(char c) {
 		return (c >= 'a' && c <= 'z');
 	}
+	bool IsPunct(char c) {
+		if ((33 <= c && c <= 47) || (58 <= c && c <= 64) || (123 <= c && c <= 126))
+			return true;
+		return false;
+	}
 	char ToLower(char c) {
 		return IsUpper(c) ? c + 32 : c;
 	}
 	char ToUpper(char c) {
 		return IsLower(c) ? c - 32 : c;
 	}
-	short Len(string word) {
-		short counter = 0;
+	int Len(string word) {
+		int counter = 0;
 		while (true) {
 			if (word[counter] == '\0')
 				break;
@@ -58,13 +63,17 @@ namespace String {
 		return (word[0] + CleanWord(SubString(word, 1)));
 
 	}
-	void RemoveWordFromString(string & text , string word) {
-		
-		if (text.find(word) == string::npos ) return;
-
-		text.erase(text.find(word) , word.size() + 1);
-		
-		RemoveWordFromString(text, word);
+	string RemoveWordFromString(string text , string word) {
+		short pos = 0;
+		while ((pos = text.find(word)) != string::npos) {
+			text.erase(pos, word.length() + 1);
+		}
+		return text;
+		//if (text.find(word) == string::npos ) return;
+		//
+		//text.erase(text.find(word) , word.size() + 1);
+		//
+		//RemoveWordFromString(text, word);
 	}
 	void SwapWordInString(string &  text, string OldWord, string NewWord) {
 		
@@ -241,8 +250,93 @@ namespace String {
 		return SplitedString;
 
 	}
+	string TrimLeft(string text) {
+		for (short i = 0; i < text.length(); i++)
+		{
+			if (text[i] != ' ')
+				return text.substr(i);
+		}
+	}
+	string TrimRight(string text) {
+		for (short i = text.size() - 1; i >= 0; i--)
+			if (text[i] != ' ')
+				return text.substr(0, i + 1);
+	}
+	string Trim(string text) {
+		return TrimRight(TrimLeft(text));
+	}
+	string JoinString(const vector <string>& vString, const string& delimiter) {
+		if (vString.empty())
+			return "";
+		string text = "";
+		for (string word : vString) {
+			text += word + delimiter;
+		}
+		return text.substr(0, text.length() - delimiter.length());
+	}
+	string JoinString(string arr[], const int& size, const string& delimiter) {
+
+		string text = "";
+
+		for (short i = 0; i < size; i++)
+			text += arr[i] + delimiter;
+
+		return text.substr(0, text.length() - delimiter.length());
+	}
+	string ReverseString(const string& text1) {
+
+		string text2 = "";
+		vector <string > vString = String::SpliteString(text1);
+		vector<string >::iterator iter = vString.end();
+
+		while (iter != vString.begin()) {
+			iter--;
+			text2 += *iter + " ";
+		}
+
+		return Trim(text2);
+
+	}
+	string ReplaceWordInString(string text, string wordToReplace, string replaceTo) {
+		short pos;
+		while ((pos = text.find(wordToReplace)) != string::npos) {
+			text.replace(pos, wordToReplace.length(), replaceTo);
+		}
+		return text;
+	}
+	string ReplaceWordInStringCustom(string text, string wordToReplace, string replaceTo, bool MatchCase = true) {
 
 
+		if (text.find(wordToReplace) == string::npos)
+			return text;
+
+		vector <string> vString = String::SpliteString(text);
+
+		for (string& word : vString) {
+			if (MatchCase)
+			{
+				if (word == wordToReplace)
+					word = replaceTo;
+			}
+			else {
+				if (String::UpperAllString(word) == String::UpperAllString(wordToReplace))
+					word = replaceTo;
+			}
+
+		}
+		return JoinString(vString, " ");
+	}
+	string RemovePunctuatoins(string text1) {
+		string text2 = "";
+
+		for (char& ch : text1) {
+			if (!IsPunct(ch))
+			{
+				text2 += ch;
+			}
+		}
+		return text2;
+	}
 
 
 }
@@ -367,22 +461,37 @@ namespace Read{
 		return num;
 		
 	}
+	double ReadDouble(string message) {
+		double num;
+		cout << message;
+		cin >> num;
+		while(cin.fail())
+		{
+			cin.clear();
+			
+			cin.ignore(INT_MAX, '\n');
+			cout << "Invalid Number.\n";
+			cin >> num;
+		}
+		return num;
+	}
 	string ReadString(string message) {
 		string str = "";
 
 		while (str.empty()) {
 			cout << message;
-			getline(cin, str);
+			// ws removes the spaces / tabs / new lines from the input
+			getline(cin >> ws, str);
 		}
 
-		return str;
+		return String::Trim(str);
 	}
 	char ReadChar(string message) {
 		char c;
-		string input;
+		string input = "";
 		while (true) {
 			cout << message;
-			getline(cin, input);
+			getline(cin >> ws, input);
 			if (String::Len(input) == 1) {
 				c = input[0];
 				break;
@@ -390,6 +499,23 @@ namespace Read{
 		}
 		return c;
 	}
+	bool ReadLine(istream& input, string& line, char delimiter = '\n') {
+
+		line.clear();
+
+		char c;
+
+		while (input.get(c) && c != delimiter) {
+			line += c;
+		}
+
+
+
+		return !line.empty() || !input.eof();
+
+
+	}
+
 }
 
 namespace Math {
@@ -683,111 +809,8 @@ namespace Array {
 
 }
 
-namespace Table {
-
-	struct stTable {
-		short cols, rows;
-		string HeadLines[10];
-		string Elements[10][10];
-	};
-	
-	string GetBorder(short num) {
-		string border = "|";
-		for (int i = 0; i < num; i++)
-			border += "-";
-		border += "|";
-		return border;
-	}
-
-	void ReadTable(stTable& table) {
-
-		table.cols = Read::ReadValidNumberInRange(1, 10, "How many Cols (1 - 10) ? ");
-		table.rows = Read::ReadValidNumberInRange(1, 10, "How many Rows (HeadLines are not included) (1 - 10) ? ");
-
-		cin.ignore(INT_MAX, '\n');
-
-		for (int i = 0; i < table.cols; i++) {
-			cout << "Head Line " << i + 1 << " : ";
-			getline(cin, table.HeadLines[i]);
-		}
-
-	}
-	void ReadTableElements(stTable& table) {
-		for (int row = 0; row < table.rows; row++) {
-			cout << "Row " << row + 1 << endl;
-			for (int col = 0; col < table.cols; col++) {
-				cout << table.HeadLines[col] << " : ";
-				getline(cin, table.Elements[row][col]);
-			}
-		}
-	}
-
-	void PrintTableBorder(stTable table) {
-		for (int i = 0; i < table.cols; i++)
-			cout << GetBorder(String::Len(table.HeadLines[i]) + 8);
-		cout << endl;
-	}
-	void PrintHeader(stTable table) {
-
-
-		PrintTableBorder(table);
-
-		for (int i = 0; i < table.cols; i++)
-			cout << "|    " << table.HeadLines[i] << "    |";
-		cout << endl;
-		PrintTableBorder(table);
-
-
-	}
-	void PrintTableRow(stTable table, short row) {
-		for (int col = 0; col < table.cols; col++) {
-			cout << "|";
-			
-			short totalHeadLineAligment = 8 + String::Len(table.HeadLines[col]);
-			short alignment = (totalHeadLineAligment - String::Len(table.Elements[row][col])) / 2 + String::Len(table.Elements[row][col]);
-			cout << setw(alignment) << table.Elements[row][col] << setw((totalHeadLineAligment - alignment) + 1);
-			
-			cout << "|";
-		}
-		cout << endl;
-
-	}
-	void PrintTable(stTable& table) {
-		PrintHeader(table);
-		for (int row = 0; row < table.rows; row++)
-		{
-			PrintTableRow(table, row);
-			PrintTableBorder(table);
-		}
-	}
-
-	void CreatTable() {
-		stTable table;
-
-		ReadTable(table);
-		ReadTableElements(table);
-		PrintTable(table);
-	}
-}
-
 namespace File {
-	bool ReadLine(istream& input, string& line, char delimitar = '\n') {
-
-		line.clear();
-
-		char c;
-
-		while (input.get(c)) {
-
-			if (c == delimitar) break;
-			line += c;
-		}
-
-		return !line.empty() || !input.eof();
-
-
-	}
-
+	
 	void PrintFileContent(string PathToFile) {
 
 		fstream file(PathToFile, ios::in);
@@ -847,6 +870,136 @@ namespace File {
 
 	}
 
+	int CoutntFileRows(string fileName) {
+		fstream file(fileName, ios::in);
+		int counter = 0;
+		string line;
+		if (file.is_open())
+		{
+			while (getline(file, line))
+				counter++;
+		}
+		return counter;
+
+
+	}
+}
+
+namespace Table {
+
+	struct stTable {
+		short cols, rows;
+		string HeadLines[10];
+		string Elements[10][10];
+	};
+	
+	string GetBorder(short num) {
+		string border = "|";
+		for (int i = 0; i < num; i++)
+			border += "-";
+		border += "|";
+		return border;
+	}
+
+	void ReadTable(stTable& table) {
+
+		table.cols = Read::ReadValidNumberInRange(1, 10, "How many Cols (1 - 10) ? ");
+		table.rows = Read::ReadValidNumberInRange(1, 10, "How many Rows (HeadLines are not included) (1 - 10) ? ");
+
+		cin.ignore(INT_MAX, '\n');
+
+		for (int i = 0; i < table.cols; i++) {
+			cout << "Head Line " << i + 1 << " : ";
+			getline(cin, table.HeadLines[i]);
+		}
+
+	}
+	void ReadTableFromFile(stTable& table, string fileName, vector<string> headlines, string delimiter) {
+		
+		table.rows = File::CoutntFileRows(fileName);
+
+		table.cols = headlines.size();
+
+		for (short col = 0; col < table.cols; col++)
+			table.HeadLines[col] = headlines[col];
+
+	}
+	
+	void ReadTableElements(stTable& table) {
+		for (int row = 0; row < table.rows; row++) {
+			cout << "Row " << row + 1 << endl;
+			for (int col = 0; col < table.cols; col++) {
+				cout << table.HeadLines[col] << " : ";
+				getline(cin, table.Elements[row][col]);
+			}
+		}
+	}
+	void ReadTableElementsFromFile(stTable& table, string fileName , string delimiter) {
+		fstream file(fileName , ios::in);
+		string line;
+		if (file.is_open())
+		{
+			vector <string> fileLineElements;
+			
+			for (short row = 0; row < table.rows; row++) {
+				getline(file, line);
+				fileLineElements = String::SpliteString(line, delimiter);
+				for (short col = 0; col < table.cols; col++) {
+					table.Elements[row][col] = fileLineElements[col];
+				}
+			}
+			
+		}
+	}
+	
+	void PrintTableBorder(stTable table) {
+		for (int i = 0; i < table.cols; i++)
+			cout << GetBorder(String::Len(table.HeadLines[i]) + 8);
+		cout << endl;
+	}
+	void PrintHeader(stTable table) {
+
+
+		PrintTableBorder(table);
+
+		for (int i = 0; i < table.cols; i++)
+			cout << "|    " << table.HeadLines[i] << "    |";
+		cout << endl;
+		PrintTableBorder(table);
+
+
+	}
+	void PrintTableRow(stTable table, short row) {
+		for (int col = 0; col < table.cols; col++) {
+			
+			short totalHeadLineAligment = 8 + String::Len(table.HeadLines[col]);
+			cout <<"|" << left << setw(totalHeadLineAligment) << table.Elements[row][col] << "|";
+			
+		}
+		cout << endl;
+
+	}
+	void PrintTable(stTable& table) {
+		PrintHeader(table);
+		for (int row = 0; row < table.rows; row++)
+		{
+			PrintTableRow(table, row);
+			PrintTableBorder(table);
+		}
+	}
+	
+	void CreatTable() {
+		stTable table;
+		ReadTable(table);
+		ReadTableElements(table);
+		PrintTable(table);
+	}
+	void CreatTableFromFile(string fileName, vector <string> headlines , string delimiter) {
+		stTable table;
+		ReadTableFromFile(table, fileName, headlines, delimiter);
+		ReadTableElementsFromFile(table, fileName, delimiter);
+		PrintTable(table);
+	}
 }
 
 namespace Matrix {
@@ -1055,6 +1208,251 @@ namespace Matrix {
 				if (m[i][j] != m[i][cols - 1 - j])
 					return false;
 		return true;
+	}
+
+}
+
+
+namespace Client {
+	const string ClientsFileName = "clients.txt";
+
+	struct stClient {
+		string name;
+		string pinCode;
+		string phoneNumber;
+		string accountNumber;
+		bool MarkForDelete = false; // flag
+		double accountBalance;
+	};
+
+	stClient ReadNewClient() {
+		stClient client;
+		client.accountNumber = Read::ReadString("Enter Account Number ? ");
+		client.pinCode = Read::ReadString("Enter PinCode ? ");
+		client.name = Read::ReadString("Enter Name ? ");
+		client.phoneNumber = Read::ReadString("Enter Phone Number ? ");
+		client.accountBalance = Read::ReadDouble("Enter AccountBalance ? ");
+		return client;
+	}
+	string ConvertRecordToLine(const stClient& client, string seperator = "#//#") {
+		string ClientRecord = "";
+		ClientRecord += client.accountNumber + seperator;
+		ClientRecord += client.pinCode + seperator;
+		ClientRecord += client.name + seperator;
+		ClientRecord += client.phoneNumber + seperator;
+		ClientRecord += to_string(client.accountBalance);
+		return ClientRecord;
+	}
+	stClient ConvertLineToRecord(string record, string seperator = "#//#") {
+		stClient client;
+
+		vector <string> vRecord = String::SpliteString(record, seperator);
+
+		client.accountNumber = vRecord.at(0);
+		client.pinCode = vRecord.at(1);
+		client.name = vRecord.at(2);
+		client.phoneNumber = vRecord.at(3);
+		client.accountBalance = stod(vRecord.at(4));
+
+		return client;
+
+
+	}
+	void PrintClientCard(stClient client) {
+		cout << "name             : " << client.name << endl;
+		cout << "pin code         : " << client.pinCode << endl;
+		cout << "phone number     : " << client.phoneNumber << endl;
+		cout << "account number   : " << client.accountNumber << endl;
+		cout << "account balance  : " << client.accountBalance << endl;
+	}
+	void AddDataLineToFile(string FileName, string DataLine) {
+		fstream file(FileName, ios::app | ios::out);
+		if (file.is_open())
+		{
+			file << DataLine << endl;
+			file.close();
+		}
+	}
+	void AddNewClient() {
+
+		stClient client = ReadNewClient();
+
+		AddDataLineToFile(ClientsFileName, ConvertRecordToLine(client));
+
+	}
+	void AddClients() {
+		char NewClient = 'y';
+		do {
+			system("clear");
+			AddNewClient();
+			NewClient = Read::ReadChar("added successfully , do you want to add new client (y) (n) ? ");
+		} while (String::ToLower(NewClient) == 'y');
+	}
+	void MyShowAllClients() {
+
+
+		vector <string> headLines = { "account number" ,"pin code" ,"name" ,"phone number", "account balance" };
+
+		Table::CreatTableFromFile(ClientsFileName, headLines, "#//#");
+
+	}
+	string GenerateBorder(short LenOfBorder) {
+		string border = "";
+		for (short i = 0; i < LenOfBorder; i++)
+			border += "_";
+		return border;
+	}
+	void PrintHeader() {
+		cout << "\t\t\t\t\tClinet List (" << File::CoutntFileRows(ClientsFileName) << ") Client(s).\n";
+
+		cout << GenerateBorder(98) << endl << endl;
+
+		cout << "| " << left << setw(15) << "Account Number" << "| ";
+		cout << left << setw(10) << "Pin Code" << "| ";
+		cout << left << setw(41) << "Client Name" << "| ";
+		cout << left << setw(14) << "Phone" << "| ";
+		cout << left << setw(14) << "Balance" << endl;
+
+		cout << GenerateBorder(98) << endl << endl;
+	}
+	vector<stClient> LoadClientsDataFromFileToVector(string fileName) {
+		vector <stClient> vClients;
+		fstream file(fileName, ios::in);
+		if (file.is_open()) {
+
+			stClient client;
+			string line;
+
+			while (getline(file, line)) {
+				client = ConvertLineToRecord(line);
+				vClients.push_back(client);
+			}
+			file.close();
+		}
+		return vClients;
+	}
+	void PrintClientData(stClient client) {
+
+		cout << "| " << left << setw(15) << client.accountNumber << "| ";
+		cout << left << setw(10) << client.pinCode << "| ";
+		cout << left << setw(41) << client.name << "| ";
+		cout << left << setw(14) << client.phoneNumber << "| ";
+		cout << client.accountBalance << endl;
+
+	}
+	void PrintAllClientsData(vector <stClient> vClients) {
+		PrintHeader();
+
+		for (stClient& client : vClients)
+			PrintClientData(client);
+		cout << GenerateBorder(98) << endl;
+	}
+	bool FindClientByAccountNumber(string AccountNumber, const vector <stClient>& vClients, stClient& client) {
+
+		for (const stClient& C : vClients) {
+			if (C.accountNumber == AccountNumber)
+			{
+				client = C;
+				return true;
+			}
+		}
+		return false;
+
+	}
+	void LoadClientsDataFromVectorToFile(string fileName, vector <stClient> clients) {
+		fstream file(fileName, ios::out); // overwrite
+
+		if (file.is_open()) {
+			for (const stClient& client : clients) {
+				if (!client.MarkForDelete)
+					file << ConvertRecordToLine(client) << endl;
+
+			}
+			file.close();
+		}
+	}
+	void MarkClientForDelete(vector <stClient>& Clients, const stClient& client) {
+
+		for (stClient& C : Clients) {
+			if (C.accountNumber == client.accountNumber)
+			{
+				C.MarkForDelete = true;
+				return;
+			}
+		}
+
+
+	}
+	void DeleteClientByAccountNumber(vector <stClient> Clients, string AccoutNumber) {
+
+		stClient client;
+
+		if (FindClientByAccountNumber(AccoutNumber, Clients, client)) {
+
+			cout << "The following are the client details : \n\n";
+
+			PrintClientCard(client);
+
+			char WantToDelete = Read::ReadChar("Are you sure you want to delete this account (y) (n) ? ");
+
+			if (String::ToLower(WantToDelete) == 'y') {
+
+				MarkClientForDelete(Clients, client);
+
+				LoadClientsDataFromVectorToFile(ClientsFileName, Clients);
+
+				// refresh Clients vector
+				Clients = LoadClientsDataFromFileToVector(ClientsFileName);
+
+				cout << "Client Deleted Successfully.\n\n";
+
+			}
+		}
+
+		else {
+			cout << "Not found :-(" << endl;
+		}
+
+
+
+
+	}
+	stClient UpdateClientRecored(string AccountNumber) {
+		stClient client;
+		client.accountNumber = AccountNumber;
+		client.pinCode = Read::ReadString("\n\nEnter pin code : ");
+		client.name = Read::ReadString("Enter name : ");
+		client.phoneNumber = Read::ReadString("Enter phone number : ");
+		client.accountBalance = Read::ReadDouble("Enter account balance : ");
+		return client;
+
+	}
+	void UpdateCleintByAccountNumber(vector <stClient>& Clients, string AccountNumber) {
+		stClient client;
+
+		if (FindClientByAccountNumber(AccountNumber, Clients, client)) {
+
+			cout << "The following is the client's details : \n";
+
+			PrintClientCard(client);
+			char WantToDelete = Read::ReadChar("Are you sure you want to update client's details (y) (n) ? ");
+			if (String::ToLower(WantToDelete)) {
+				for (stClient& C : Clients) {
+					if (C.accountNumber == AccountNumber)
+					{
+						C = UpdateClientRecored(AccountNumber);
+						break;
+					}
+				}
+			}
+
+			LoadClientsDataFromVectorToFile(ClientsFileName, Clients);
+		}
+
+		else {
+			cout << "Not Found :-(\n\n";
+		}
+
 	}
 
 }
