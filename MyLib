@@ -341,7 +341,6 @@ namespace String {
 
 }
 
-
 namespace Random {
 	int GenerateRandomNumber(int From, int To) {
 
@@ -395,87 +394,96 @@ namespace Random {
 }
 
 namespace Read{
-	int ReadNumber(string message) {
-	int num;
-	cout << message;
-	cin >> num;
-	while (cin.fail()) {
-		cin.clear();
-		cout << "Invalid number.\n";
-		cin.ignore(INT_MAX, '\n');
+	double ReadDoubleInRange(double From, double To, string message, string OutOfRangeMessage = "", string InvalidInputMessage = "") {
+		double num;
+		cout << message;
 		cin >> num;
+		while (num > To || num < From || cin.fail()) {
+
+			if (cin.fail())
+				cout << InvalidInputMessage;
+			else
+				cout << OutOfRangeMessage;
+
+			cin.clear();
+			cin.ignore(INT_MAX, '\n');
+			cin >> num;
+		}
+		return num;
 	}
-	return num;
-}
-	int ReadValidNumber(string message) {
+	int ReadIntInRange(int From, int To, string message, string OutOfRangeMessage = "", string InvalidInputMessage = "") {
+		int num;
+		cout << message;
+		cin >> num;
+		while (num > To || num < From || cin.fail()) {
+
+			if (cin.fail())
+				cout << InvalidInputMessage;
+			else
+				cout << OutOfRangeMessage;
+
+			cin.clear();
+
+			cin.ignore(INT_MAX, '\n');
+			cin >> num;
+		}
+		return num;
+	}
+	float ReadFloatInRange(float From, float To, string message, string OutOfRangeMessage = "", string InvalidInputMessage = "") {
+		float num;
+		cout << message;
+		cin >> num;
+		while (num > To || num < From || cin.fail()) {
+
+			if (cin.fail())
+				cout << InvalidInputMessage;
+			else
+				cout << OutOfRangeMessage;
+
+			cin.clear();
+			cin.ignore(INT_MAX, '\n');
+			cin >> num;
+		}
+		return num;
+	}
+
+	int ReadInt(string message, string AlertMessage = "") {
 		int num;
 		cout << message;
 		cin >> num;
 		while (cin.fail()) {
 			cin.clear();
-			cout << "Invalid number.\n";
+			cout << AlertMessage;
 			cin.ignore(INT_MAX, '\n');
 			cin >> num;
 		}
 		return num;
 	}
-	int ReadPositiveNumber(string message) {
-		int num;
-		while (true) {
-			cout << message;
-			cin >> num;
-			if (num > 0)
-				return num;
-
-		}
-	}
-	int ReadPositiveValidNumber(string message, string alertMessage = "") {
-		int num = 0;
-		cout << message;
-		cin >> num;
-		while (cin.fail() || num < 0) {
-			cin.clear();
-			cin.ignore(INT_MAX, '\n');
-			cout << alertMessage;
-			cin >> num;
-		}
-		return num;
-	}
-	int ReadNumberInRange(int from, int to, string message) {
-		int num;
-		do {
-			cout << message;
-			cin >> num;
-		} while (num < from || num > to );
-		return num;
-	}
-	int ReadValidNumberInRange(int from, int to, string message) {
-		int num;
-		cout << message;
-		cin >> num;
-		while (num < from || num > to || cin.fail()) {
-			cin.clear();
-			cout << message;
-			cin.ignore(INT_MAX, '\n');
-			cin >> num;
-		}
-		return num;
-		
-	}
-	double ReadDouble(string message) {
+	double ReadDouble(string message, string AlertMessage = "") {
 		double num;
 		cout << message;
 		cin >> num;
-		while(cin.fail())
-		{
+		while (cin.fail()) {
 			cin.clear();
-			
+			cout << AlertMessage;
 			cin.ignore(INT_MAX, '\n');
-			cout << "Invalid Number.\n";
 			cin >> num;
 		}
 		return num;
 	}
+	float ReadFloat(string message, string AlertMessage = "") {
+		float num;
+		cout << message;
+		cin >> num;
+		while (cin.fail()) {
+			cin.clear();
+			cout << AlertMessage;
+			cin.ignore(INT_MAX, '\n');
+			cin >> num;
+		}
+		return num;
+	}
+	
 	string ReadString(string message) {
 		string str = "";
 
@@ -604,6 +612,12 @@ namespace Utility {
 			spaces += " ";
 		return spaces;
 	}
+	string RepeatString(short RepititionTimes, string StringToRepeat) {
+		string Line = "";
+		for (short i = 0; i < RepititionTimes; i++)
+			Line += StringToRepeat;
+		return Line;
+	}
 }
 
 namespace Array {
@@ -615,7 +629,7 @@ namespace Array {
 		string message = "";
 		for (int i = 0; i < size; i++) {
 			message = "Enter Element [" + to_string(i + 1) + "] : ";
-			arr[i] = Read::ReadPositiveNumber(message);
+			arr[i] = Read::ReadInt(message,"Invalid input\nPlease enter number : ");
 		}
 	}
 	void PrintArray(int arr[], int size) {
@@ -708,9 +722,9 @@ namespace Array {
 		{
 
 
-			AddNumberToArray(arr, size, Read::ReadNumber("Please enter a number ? \n"));
+			AddNumberToArray(arr, size, Read::ReadInt("Please enter a number ? \n","Invalid input\nPlease enter number : "));
 
-			AddMore = Read::ReadNumber("Do you want to add more numbers? [0]: No ,[1]: Yes ? \n");
+			AddMore = Read::ReadIntInRange(0,1,"Do you want to add more numbers? [0]: No ,[1]: Yes ? \n", "Out of Range.\nPlease enter another number : ", "Invalid input\nPlease enter number : ");
 
 
 		} while (AddMore);
@@ -917,8 +931,8 @@ namespace Table {
 
 	void ReadTable(stTable& table) {
 
-		table.cols = Read::ReadValidNumberInRange(1, 10, "How many Cols (1 - 10) ? ");
-		table.rows = Read::ReadValidNumberInRange(1, 10, "How many Rows (HeadLines are not included) (1 - 10) ? ");
+		table.cols = Read::ReadIntInRange(1, 10, "How many Cols (1 - 10) ? ", "out of range.\n", "Invalid input.\n");
+		table.rows = Read::ReadIntInRange(1, 10, "How many Rows (HeadLines are not included) (1 - 10) ? ", "out of range.\n", "Invalid input.\n");
 
 		cin.ignore(INT_MAX, '\n');
 
@@ -1227,7 +1241,6 @@ namespace Matrix {
 
 }
 
-
 namespace Client {
 	const string ClientsFileName = "clients.txt";
 
@@ -1246,7 +1259,7 @@ namespace Client {
 		client.pinCode = Read::ReadString("Enter PinCode ? ");
 		client.name = Read::ReadString("Enter Name ? ");
 		client.phoneNumber = Read::ReadString("Enter Phone Number ? ");
-		client.accountBalance = Read::ReadDouble("Enter AccountBalance ? ");
+		client.accountBalance = Read::ReadDouble("Enter AccountBalance ? ", "invalid input.\n");
 		return client;
 	}
 	string ConvertRecordToLine(const stClient& client, string seperator = "#//#") {
